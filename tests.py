@@ -6,6 +6,7 @@ from io import StringIO
 from cedict.cedict_parser import iter_cedict
 from cedict.pinyin import pinyinize, depinyinize
 from parse_into_pandas import extract_single, DictDF
+import pandas as pd
 
 try:
     unicode('hi')
@@ -27,6 +28,7 @@ class TestParsePandas(unittest.TestCase):
     def setUp(self):
         self.f = StringIO(SAMPLE_CEDICT)
         self.df = DictDF()
+        self.e = StringIO(SAMPLE_CEDICT)
 
     def test_extract_single(self):
         s_entries = []
@@ -39,6 +41,10 @@ class TestParsePandas(unittest.TestCase):
         self.assertEqual(len(s_entries), 6)
         self.assertEqual("麵包房" in s_entries, False)
         self.assertEqual("包" in s_entries, False)
+
+        #p = list(extract_single(self.e))
+        #pdf = pd.DataFrame(p, columns=('traditional','pinyin','pinyin(raw)','tone','definition','variants','measure-words'))
+        #print pdf
 
     def test_create_df(self):
         self.df.load_single_entries()

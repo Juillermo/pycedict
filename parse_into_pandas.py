@@ -50,11 +50,7 @@ class DictDF():
                 self.s_df = pd.read_csv('single_char_df.csv')
             except IOError:
                 with open(self.dict_file_name) as dict_file:
-                    i = 0
-                    for ch, pinyin, pwot, tone, defs, variants, mw in extract_single(dict_file):
-                        self.s_df.loc[i] = (ch, pinyin, pwot, tone, defs, variants, mw)
-                        i = i + 1
-
+                    self.s_df = pd.DataFrame(list(extract_single(dict_file)), columns=('traditional','pinyin','pinyin(raw)','tone','definition','variants','measure-words'))
                     self.s_df.to_csv('single_char_df.csv')
 
             print "Data frame loaded. \n Length of data frame: {}".format(len(self.s_df))
