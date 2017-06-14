@@ -2,7 +2,7 @@
 
 import unittest
 from io import StringIO
-from cedict.cedict_parser import iter_cedict
+from cedict.cedict_parser import iter_cedict, extract_single
 from cedict.pinyin import pinyinize, depinyinize
 
 try:
@@ -18,7 +18,8 @@ SAMPLE_CEDICT = unicode("""齡 龄 [ling2] /age/length of experience, membership
 齩 咬 [yao3] /variant of 咬[yao3]/
 麵包房 面包房 [mian4 bao1 fang2] /bakery/CL:家[jia1]/
 鮎 鲇 [nian2] /sheatfish (Parasilurus asotus)/oriental catfish/see also 鯰|鲶[nian2]/
-鯰 鲶 [nian2] /sheatfish (Parasilurus asotus)/oriental catfish/see also 鮎|鲇[nian2]/""", 'utf-8')
+鯰 鲶 [nian2] /sheatfish (Parasilurus asotus)/oriental catfish/see also 鮎|鲇[nian2]/
+包 鲶 [niant] /wrong entry/not right/see also 鮎|鲇[nian2]/""", 'utf-8')
 
 
 class TestIterCEDict(unittest.TestCase):
@@ -30,8 +31,8 @@ class TestIterCEDict(unittest.TestCase):
         for ch, chs, pinyin, defs, variants, mw in iter_cedict(self.f):
             entries.append(pinyin)
 
-        self.assertEqual(7, len(entries))
-        self.assertEqual('ling2 ling2 yao3 yao3 mian4 bao1 fang2 nian2 nian2', ' '.join(entries))
+        self.assertEqual(8, len(entries))
+        self.assertEqual('ling2 ling2 yao3 yao3 mian4 bao1 fang2 nian2 nian2 niant', ' '.join(entries))
 
     def test_defs_correct(self):
         d = {}
@@ -60,6 +61,18 @@ class TestIterCEDict(unittest.TestCase):
         d = {}
         for ch, chs, pinyin, defs, variants, mw in iter_cedict(self.f):
             d[ch] = variants
+
+    def test_extract_single(self):
+        s_entries = []
+        for ch, pinyin, pwt, tone, defs, variants, mw in extract_single(self.f):
+            self.assertEqual(len(ch)==1, True)
+            self.assertEqual(tone in ["1","2","3","4","5"], True)
+
+            s_entries.append(ch)
+
+        self.assertEqual(len(s_entries), 6)
+        self.assertEqual("麵包房" in s_entries, False)
+        self.assertEqual("包" in s_entries, False)
 
 class TestPinyin(unittest.TestCase):
 
