@@ -1,14 +1,11 @@
 import os, gzip, re, sys
-from pinyin import ALL_SOUNDS, pinyinize
+from pinyin import pinyinize
 
 # try:
 #     unicode('hi')
 # except NameError:
 #     def unicode(s):
 #         return s
-
-reload(sys)
-sys.setdefaultencoding('utf8')
 
 CEDICT_LINE_REGEX = re.compile(unicode(r'^(.*?)\s+(.*?)\s+\[(.*?)\]\s*(/.*/)\s*$'), re.IGNORECASE)
 
@@ -127,29 +124,3 @@ def iter_cedict(fileobj):
         defs, variants = _find_variants(defs)
 
         yield ch, chs, num_pinyin, defs, variants, mwords
-
-
-class InvalidToneError(ValueError):
-    pass
-
-def extract_single(fileobj):
-    """
-    Get only the single-character entries and extract tone, yielding a tuple for each entrie as
-    (chinese-traditional, pinyin, pinyin(w/o tone), tone, definitions, variants, measure-words)
-    """
-    for ch, chs, pinyin, defs, variants, mw in iter_cedict(fileobj):
-        ch_d = ch.decode('utf8')
-        # non-chinese in chinese
-        if any((ord(c) < 128 and c != ' ') for c in ch):
-            print ch
-            # latin non-space not allowed in chinese
-            continue
-
-        if len(ch_d) == 1:
-            pin_wo_tone = pinyin[0:-1]
-            tone = pinyin[-1]
-            if tone not in ["1","2","3","4","5"] or pin_wo_tone not in ALL_SOUNDS:
-                pass#InvalidToneError("Tone {} not allowed (only numbers from 1 to 5)".format(tone))
-            else:
-                pinyin = pinyinize(pinyin)
-                yield ch, pinyin, pin_wo_tone, tone, defs, variants, mw
